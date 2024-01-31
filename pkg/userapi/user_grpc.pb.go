@@ -4,7 +4,7 @@
 // - protoc             v4.25.0
 // source: user.proto
 
-package main
+package userapi
 
 import (
 	context "context"

@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type UserService struct {
-	addr  string
-	client  UsersClient
-	ctx   context.Context
-	close func() error
+	addr   string
+	client userapi.UsersClient
+	ctx    context.Context
+	close  func() error
 }
 
 func NewUserService(addr string) (*UserService, error) {
@@ -23,10 +24,10 @@ func NewUserService(addr string) (*UserService, error) {
 	}
 
 	return &UserService{
-		addr:  addr,
-		client:  NewUsersClient(conn),
-		ctx:   context.Background(),
-		close: conn.Close,
+		addr:   addr,
+		client: userapi.NewUsersClient(conn),
+		ctx:    context.Background(),
+		close:  conn.Close,
 	}, nil
 }
 
@@ -41,7 +42,7 @@ func main() {
 	}
 	defer us.Close()
 
-	user, err := us.client.Get(us.ctx, &UserRequest{Id: 1})
+	user, err := us.client.Get(us.ctx, &userapi.UserRequest{Id: 1})
 	if err != nil {
 		log.Fatal(err)
 	}
