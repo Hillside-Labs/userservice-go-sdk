@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
+	"github.com/Hillside-Labs/userservice-go-sdk/pkg/userapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
