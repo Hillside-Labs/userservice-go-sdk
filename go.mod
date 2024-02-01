@@ -1,4 +1,4 @@
-module github.com/Hillside-Labs/userservice-go-sdk
+module github.com/hillside-labs/userservice-go-sdk
 
 go 1.21.4
 
