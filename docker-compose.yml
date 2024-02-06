@@ -1,0 +1,40 @@
+---
+version: "3"
+
+services:
+  userservice-web:
+    image: hillside/userservice-web:latest
+    command: ["./userserver", "web", "--create-db"]
+    restart: always
+    build:
+        context: .
+    ports:
+      - 9001:9001
+    environment:
+      USERSERVICE_DBURI: postgres://timescaledb:password@timescaledb:5432/userup_userservice
+      USERSERVICE_DBNAME: userup_userservice
+
+
+  userservice-grpc:
+    image: hillside/userservice:latest
+    command: ["./userserver", "grpc", "--create-db"]
+    restart: always
+    build:
+        context: .
+    ports:
+      - 9000:9000
+    environment:
+      USERSERVICE_DBURI: postgres://timescaledb:password@timescaledb:5432/userup_userservice
+      USERSERVICE_DBNAME: userup_userservice
+
+  timescaledb:
+    image: timescale/timescaledb-ha:pg15-latest
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: timescaledb
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    command: -p 5432
