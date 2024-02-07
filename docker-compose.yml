@@ -3,7 +3,7 @@ version: "3"
 
 services:
   userservice-web:
-    image: hillside/userservice-web:latest
+    image: ghcr.io/hillside-labs/userservice:latest
     command: ["./userserver", "web", "--create-db"]
     restart: always
     build:
@@ -16,7 +16,7 @@ services:
 
 
   userservice-grpc:
-    image: hillside/userservice:latest
+    image: ghcr.io/hillside-labs/userservice:latest
     command: ["./userserver", "grpc", "--create-db"]
     restart: always
     build:
