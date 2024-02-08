@@ -1,6 +1,6 @@
 module github.com/hillside-labs/userservice-go-sdk
 
-go 1.21.4
+go 1.22.0
 
 require (
 	google.golang.org/grpc v1.61.0
