@@ -12,6 +12,10 @@ import (
 	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
 )
 
+// NewClient creates a new instance of the UserService client.
+// It establishes a gRPC connection to the specified URI and returns the client.
+// The URI should be in the format "host:port".
+// If the connection cannot be established, an error is returned.
 func NewClient(uri string) (*UserService, error) {
 	conn, err := grpc.Dial(uri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -57,6 +61,9 @@ func (us *UserService) Close() {
 	us.close()
 }
 
+// AddUser adds a new user to the user service.
+// It takes a context and a pointer to a User struct as input.
+// It returns a pointer to the created User and an error, if any.
 func (us UserService) AddUser(ctx context.Context, user *User) (*User, error) {
 
 	attrStruct, err := structpb.NewStruct(user.Attributes)
@@ -93,6 +100,10 @@ func (us UserService) AddUser(ctx context.Context, user *User) (*User, error) {
 	}, nil
 }
 
+// AddAttribute adds an attribute to a user with the specified ID.
+// It takes a context, user ID, attribute key, and attribute value as parameters.
+// The attribute value can be of any type and will be converted to a structpb.Value.
+// Returns an error if there was a problem adding the attribute.
 func (us UserService) AddAttribute(ctx context.Context, id uint64, key string, value interface{}) error {
 	attrVal, err := structpb.NewValue(value)
 	if err != nil {
@@ -106,6 +117,10 @@ func (us UserService) AddAttribute(ctx context.Context, id uint64, key string, v
 	return err
 }
 
+// AddTrait adds a trait to a user identified by their ID.
+// It takes a context, user ID, trait key, and trait value as parameters.
+// The trait value can be of any type and will be converted to a structpb.Value.
+// Returns an error if there was a problem adding the trait.
 func (us UserService) AddTrait(ctx context.Context, id uint64, key string, value interface{}) error {
 	traitVal, err := structpb.NewValue(value)
 	if err != nil {
@@ -119,6 +134,9 @@ func (us UserService) AddTrait(ctx context.Context, id uint64, key string, value
 	return err
 }
 
+// UpdateUser updates a user with the provided user data.
+// It takes a context.Context and a pointer to a User struct as input.
+// It returns a pointer to the updated User struct and an error if any.
 func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error) {
 	attrStruct, err := structpb.NewStruct(user.Attributes)
 	if err != nil {
@@ -155,6 +173,9 @@ func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error)
 	}, nil
 }
 
+// GetUser retrieves a user by their ID.
+// It makes a request to the user service API to fetch the user details.
+// Returns the user object if found, otherwise returns an error.
 func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 	userResp, err := us.client.Get(ctx, &userapi.UserRequest{
 		Id: id,
@@ -179,6 +200,7 @@ func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 	}, nil
 }
 
+// DeleteUser deletes a user by their ID.
 func (us UserService) DeleteUser(ctx context.Context, id uint64) error {
 	_, err := us.client.Delete(ctx, &userapi.UserRequest{
 		Id: id,
@@ -186,6 +208,9 @@ func (us UserService) DeleteUser(ctx context.Context, id uint64) error {
 	return err
 }
 
+// QueryUsers queries the user service with the given query and returns a list of users and an error, if any.
+// The query parameter specifies the criteria for filtering the users.
+// The returned list of users contains the user ID, username, UUID, attributes, and traits.
 func (us UserService) QueryUsers(ctx context.Context, query *Query) ([]*User, error) {
 	queryJson, err := json.Marshal(query)
 	if err != nil {
@@ -216,6 +241,9 @@ func (us UserService) QueryUsers(ctx context.Context, query *Query) ([]*User, er
 	return users, nil
 }
 
+// QueryAttributes queries the attributes of a user based on the provided query.
+// It takes a context.Context and a *Query as input parameters.
+// It returns a map[string]interface{} containing the attributes of the user and an error if any.
 func (us UserService) QueryAttributes(ctx context.Context, query *Query) (map[string]interface{}, error) {
 	queryJson, err := json.Marshal(query)
 	if err != nil {
@@ -228,6 +256,9 @@ func (us UserService) QueryAttributes(ctx context.Context, query *Query) (map[st
 	return attrResp.Attributes.AsMap(), nil
 }
 
+// QueryTraits queries the traits of users based on the provided query.
+// It takes a context.Context and a *Query as input parameters.
+// It returns a map[string]interface{} containing the traits of the users and an error if any.
 func (us UserService) QueryTraits(ctx context.Context, query *Query) (map[string]interface{}, error) {
 	queryJson, err := json.Marshal(query)
 	if err != nil {
@@ -240,6 +271,8 @@ func (us UserService) QueryTraits(ctx context.Context, query *Query) (map[string
 	return traitResp.Traits.AsMap(), nil
 }
 
+// QueryEvents queries events based on the provided query parameters.
+// It returns a slice of Event objects and an error if any.
 func (us UserService) QueryEvents(ctx context.Context, query *Query) ([]Event, error) {
 	queryJson, err := json.Marshal(query)
 	if err != nil {
