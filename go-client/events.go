@@ -15,7 +15,7 @@ import (
 type EventLoggerConfig struct {
 	Source      string       // Source represents the source of the events.
 	SpecVersion string       // SpecVersion represents the version of the event specification.
-	UserService UserService  // UserService represents the user service client.
+	UserService *UserService  // UserService represents the user service client.
 }
 
 // EventLogger represents a logger for logging events in the user service.
@@ -25,7 +25,7 @@ type EventLogger struct {
 
 // NewLoggerConfig creates a new EventLoggerConfig with the specified source and UserService.
 // It returns the created EventLoggerConfig.
-func NewLoggerConfig(source string, userService UserService) EventLoggerConfig {
+func NewLoggerConfig(source string, userService *UserService) EventLoggerConfig {
 	return EventLoggerConfig{
 		Source:      source,
 		SpecVersion: "1.0",

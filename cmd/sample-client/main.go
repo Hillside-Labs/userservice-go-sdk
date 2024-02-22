@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	userup "github.com/hillside-labs/userservice-go-sdk/go-client"
 )
@@ -15,6 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer client.Close()
+
+	logger := userup.NewLogger(userup.NewLoggerConfig("https://userup.io/sample-client", client))
 
 	user := &userup.User{
 		Username: "jdoe2",
@@ -30,6 +33,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	logger.LogEvent(context.Background(), user.Id, "io.userup.user.created", "user", strconv.FormatUint(user.Id, 10), user)
 
 	fmt.Println("User ID:", userRet.Id)
 	user, err = client.GetUser(ctx, userRet.Id)
