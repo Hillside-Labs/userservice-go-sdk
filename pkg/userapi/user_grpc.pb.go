@@ -25,6 +25,10 @@ const (
 	Users_Find_FullMethodName                       = "/userapi.Users/Find"
 	Users_Delete_FullMethodName                     = "/userapi.Users/Delete"
 	Users_LogEvent_FullMethodName                   = "/userapi.Users/LogEvent"
+	Users_AddAttribute_FullMethodName               = "/userapi.Users/AddAttribute"
+	Users_AddTrait_FullMethodName                   = "/userapi.Users/AddTrait"
+	Users_DeleteAttribute_FullMethodName            = "/userapi.Users/DeleteAttribute"
+	Users_DeleteTrait_FullMethodName                = "/userapi.Users/DeleteTrait"
 	Users_SearchUserTraits_FullMethodName           = "/userapi.Users/SearchUserTraits"
 	Users_GetUsersByTraits_FullMethodName           = "/userapi.Users/GetUsersByTraits"
 	Users_GetUsersByAggregatedTraits_FullMethodName = "/userapi.Users/GetUsersByAggregatedTraits"
@@ -33,6 +37,10 @@ const (
 	Users_SearchEvents_FullMethodName               = "/userapi.Users/SearchEvents"
 	Users_NaturalBreaks_FullMethodName              = "/userapi.Users/NaturalBreaks"
 	Users_NaturalBreaksQueried_FullMethodName       = "/userapi.Users/NaturalBreaksQueried"
+	Users_QueryUsers_FullMethodName                 = "/userapi.Users/QueryUsers"
+	Users_QueryAttributes_FullMethodName            = "/userapi.Users/QueryAttributes"
+	Users_QueryTraits_FullMethodName                = "/userapi.Users/QueryTraits"
+	Users_QueryEvents_FullMethodName                = "/userapi.Users/QueryEvents"
 )
 
 // UsersClient is the client API for Users service.
@@ -45,6 +53,10 @@ type UsersClient interface {
 	Find(ctx context.Context, in *UserQuery, opts ...grpc.CallOption) (*UserListResponse, error)
 	Delete(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	LogEvent(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*EventResponse, error)
+	AddAttribute(ctx context.Context, in *AttributeRequest, opts ...grpc.CallOption) (*AttributeResponse, error)
+	AddTrait(ctx context.Context, in *TraitRequest, opts ...grpc.CallOption) (*TraitResponse, error)
+	DeleteAttribute(ctx context.Context, in *AttributeRequest, opts ...grpc.CallOption) (*AttributeResponse, error)
+	DeleteTrait(ctx context.Context, in *TraitRequest, opts ...grpc.CallOption) (*TraitResponse, error)
 	SearchUserTraits(ctx context.Context, in *SearchUserTraitsRequest, opts ...grpc.CallOption) (*SearchUserTraitsResponse, error)
 	GetUsersByTraits(ctx context.Context, in *SearchUserTraitsRequest, opts ...grpc.CallOption) (*UserListResponse, error)
 	GetUsersByAggregatedTraits(ctx context.Context, in *GetUsersByAggregatedTraitsRequest, opts ...grpc.CallOption) (*UserListResponse, error)
@@ -53,6 +65,10 @@ type UsersClient interface {
 	SearchEvents(ctx context.Context, in *SearchEventsRequest, opts ...grpc.CallOption) (*SearchEventsResponse, error)
 	NaturalBreaks(ctx context.Context, in *NaturalBreaksRequest, opts ...grpc.CallOption) (*NaturalBreaksResponse, error)
 	NaturalBreaksQueried(ctx context.Context, in *NaturalBreaksQueryRequest, opts ...grpc.CallOption) (*NaturalBreaksResponse, error)
+	QueryUsers(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*UserListResponse, error)
+	QueryAttributes(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*AttributeListResponse, error)
+	QueryTraits(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*TraitListResponse, error)
+	QueryEvents(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*SearchEventsResponse, error)
 }
 
 type usersClient struct {
@@ -111,6 +127,42 @@ func (c *usersClient) Delete(ctx context.Context, in *UserRequest, opts ...grpc.
 func (c *usersClient) LogEvent(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*EventResponse, error) {
 	out := new(EventResponse)
 	err := c.cc.Invoke(ctx, Users_LogEvent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) AddAttribute(ctx context.Context, in *AttributeRequest, opts ...grpc.CallOption) (*AttributeResponse, error) {
+	out := new(AttributeResponse)
+	err := c.cc.Invoke(ctx, Users_AddAttribute_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) AddTrait(ctx context.Context, in *TraitRequest, opts ...grpc.CallOption) (*TraitResponse, error) {
+	out := new(TraitResponse)
+	err := c.cc.Invoke(ctx, Users_AddTrait_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) DeleteAttribute(ctx context.Context, in *AttributeRequest, opts ...grpc.CallOption) (*AttributeResponse, error) {
+	out := new(AttributeResponse)
+	err := c.cc.Invoke(ctx, Users_DeleteAttribute_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) DeleteTrait(ctx context.Context, in *TraitRequest, opts ...grpc.CallOption) (*TraitResponse, error) {
+	out := new(TraitResponse)
+	err := c.cc.Invoke(ctx, Users_DeleteTrait_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +241,42 @@ func (c *usersClient) NaturalBreaksQueried(ctx context.Context, in *NaturalBreak
 	return out, nil
 }
 
+func (c *usersClient) QueryUsers(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*UserListResponse, error) {
+	out := new(UserListResponse)
+	err := c.cc.Invoke(ctx, Users_QueryUsers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) QueryAttributes(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*AttributeListResponse, error) {
+	out := new(AttributeListResponse)
+	err := c.cc.Invoke(ctx, Users_QueryAttributes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) QueryTraits(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*TraitListResponse, error) {
+	out := new(TraitListResponse)
+	err := c.cc.Invoke(ctx, Users_QueryTraits_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) QueryEvents(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*SearchEventsResponse, error) {
+	out := new(SearchEventsResponse)
+	err := c.cc.Invoke(ctx, Users_QueryEvents_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -199,6 +287,10 @@ type UsersServer interface {
 	Find(context.Context, *UserQuery) (*UserListResponse, error)
 	Delete(context.Context, *UserRequest) (*UserResponse, error)
 	LogEvent(context.Context, *EventRequest) (*EventResponse, error)
+	AddAttribute(context.Context, *AttributeRequest) (*AttributeResponse, error)
+	AddTrait(context.Context, *TraitRequest) (*TraitResponse, error)
+	DeleteAttribute(context.Context, *AttributeRequest) (*AttributeResponse, error)
+	DeleteTrait(context.Context, *TraitRequest) (*TraitResponse, error)
 	SearchUserTraits(context.Context, *SearchUserTraitsRequest) (*SearchUserTraitsResponse, error)
 	GetUsersByTraits(context.Context, *SearchUserTraitsRequest) (*UserListResponse, error)
 	GetUsersByAggregatedTraits(context.Context, *GetUsersByAggregatedTraitsRequest) (*UserListResponse, error)
@@ -207,6 +299,10 @@ type UsersServer interface {
 	SearchEvents(context.Context, *SearchEventsRequest) (*SearchEventsResponse, error)
 	NaturalBreaks(context.Context, *NaturalBreaksRequest) (*NaturalBreaksResponse, error)
 	NaturalBreaksQueried(context.Context, *NaturalBreaksQueryRequest) (*NaturalBreaksResponse, error)
+	QueryUsers(context.Context, *QueryRequest) (*UserListResponse, error)
+	QueryAttributes(context.Context, *QueryRequest) (*AttributeListResponse, error)
+	QueryTraits(context.Context, *QueryRequest) (*TraitListResponse, error)
+	QueryEvents(context.Context, *QueryRequest) (*SearchEventsResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -232,6 +328,18 @@ func (UnimplementedUsersServer) Delete(context.Context, *UserRequest) (*UserResp
 func (UnimplementedUsersServer) LogEvent(context.Context, *EventRequest) (*EventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LogEvent not implemented")
 }
+func (UnimplementedUsersServer) AddAttribute(context.Context, *AttributeRequest) (*AttributeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAttribute not implemented")
+}
+func (UnimplementedUsersServer) AddTrait(context.Context, *TraitRequest) (*TraitResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddTrait not implemented")
+}
+func (UnimplementedUsersServer) DeleteAttribute(context.Context, *AttributeRequest) (*AttributeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAttribute not implemented")
+}
+func (UnimplementedUsersServer) DeleteTrait(context.Context, *TraitRequest) (*TraitResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTrait not implemented")
+}
 func (UnimplementedUsersServer) SearchUserTraits(context.Context, *SearchUserTraitsRequest) (*SearchUserTraitsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchUserTraits not implemented")
 }
@@ -255,6 +363,18 @@ func (UnimplementedUsersServer) NaturalBreaks(context.Context, *NaturalBreaksReq
 }
 func (UnimplementedUsersServer) NaturalBreaksQueried(context.Context, *NaturalBreaksQueryRequest) (*NaturalBreaksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NaturalBreaksQueried not implemented")
+}
+func (UnimplementedUsersServer) QueryUsers(context.Context, *QueryRequest) (*UserListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryUsers not implemented")
+}
+func (UnimplementedUsersServer) QueryAttributes(context.Context, *QueryRequest) (*AttributeListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAttributes not implemented")
+}
+func (UnimplementedUsersServer) QueryTraits(context.Context, *QueryRequest) (*TraitListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryTraits not implemented")
+}
+func (UnimplementedUsersServer) QueryEvents(context.Context, *QueryRequest) (*SearchEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryEvents not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -373,6 +493,78 @@ func _Users_LogEvent_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).LogEvent(ctx, req.(*EventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_AddAttribute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AttributeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).AddAttribute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_AddAttribute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).AddAttribute(ctx, req.(*AttributeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_AddTrait_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TraitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).AddTrait(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_AddTrait_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).AddTrait(ctx, req.(*TraitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_DeleteAttribute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AttributeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).DeleteAttribute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_DeleteAttribute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).DeleteAttribute(ctx, req.(*AttributeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_DeleteTrait_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TraitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).DeleteTrait(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_DeleteTrait_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).DeleteTrait(ctx, req.(*TraitRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -521,6 +713,78 @@ func _Users_NaturalBreaksQueried_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_QueryUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).QueryUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_QueryUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).QueryUsers(ctx, req.(*QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_QueryAttributes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).QueryAttributes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_QueryAttributes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).QueryAttributes(ctx, req.(*QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_QueryTraits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).QueryTraits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_QueryTraits_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).QueryTraits(ctx, req.(*QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_QueryEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).QueryEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_QueryEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).QueryEvents(ctx, req.(*QueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -553,6 +817,22 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Users_LogEvent_Handler,
 		},
 		{
+			MethodName: "AddAttribute",
+			Handler:    _Users_AddAttribute_Handler,
+		},
+		{
+			MethodName: "AddTrait",
+			Handler:    _Users_AddTrait_Handler,
+		},
+		{
+			MethodName: "DeleteAttribute",
+			Handler:    _Users_DeleteAttribute_Handler,
+		},
+		{
+			MethodName: "DeleteTrait",
+			Handler:    _Users_DeleteTrait_Handler,
+		},
+		{
 			MethodName: "SearchUserTraits",
 			Handler:    _Users_SearchUserTraits_Handler,
 		},
@@ -583,6 +863,22 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NaturalBreaksQueried",
 			Handler:    _Users_NaturalBreaksQueried_Handler,
+		},
+		{
+			MethodName: "QueryUsers",
+			Handler:    _Users_QueryUsers_Handler,
+		},
+		{
+			MethodName: "QueryAttributes",
+			Handler:    _Users_QueryAttributes_Handler,
+		},
+		{
+			MethodName: "QueryTraits",
+			Handler:    _Users_QueryTraits_Handler,
+		},
+		{
+			MethodName: "QueryEvents",
+			Handler:    _Users_QueryEvents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
