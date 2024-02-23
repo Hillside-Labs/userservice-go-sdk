@@ -17,7 +17,8 @@ The `userup` package provides a `UserService` struct which can be used to intera
 Simply supply it with the address of the userservice GRPC server
 
 ```go
-client := userup.NewClient("localhost:9000")
+client, err := userup.NewClient("localhost:9000")
+defer client.Close()
 ```
 
 ### Creating a User
@@ -74,7 +75,7 @@ logger.LogEvent(context.Background(), user.Id, "io.userup.user.created", "user",
 
 ## Query Usage
 
-The `Query` struct provides a flexible way to construct and execute queries in the userservice package. It allows you to specify filters, select fields, order by criteria, limit, offset, and joins.
+The `Query` struct provides a flexible way to construct and execute queries in the userservice package. This is an experimental portion of the SDK and will likely change as it develops.
 
 ### Creating a Query
 

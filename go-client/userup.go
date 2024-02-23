@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
 )
@@ -83,21 +84,7 @@ func (us UserService) AddUser(ctx context.Context, user *User) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	attributes := make(map[string]interface{})
-	for k, v := range userResp.Attributes.Fields {
-		attributes[k] = v.AsInterface()
-	}
-	traits := make(map[string]interface{})
-	for k, v := range userResp.Traits.Fields {
-		traits[k] = v.AsInterface()
-	}
-	return &User{
-		Id:         userResp.Id,
-		Username:   userResp.Username,
-		Uuid:       userResp.Uuid,
-		Attributes: attributes,
-		Traits:     traits,
-	}, nil
+	return UserResponseToUser(userResp), nil
 }
 
 // AddAttribute adds an attribute to a user with the specified ID.
@@ -156,21 +143,7 @@ func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error)
 	if err != nil {
 		return nil, err
 	}
-	attributes := make(map[string]interface{})
-	for k, v := range userResp.Attributes.Fields {
-		attributes[k] = v.AsInterface()
-	}
-	traits := make(map[string]interface{})
-	for k, v := range userResp.Traits.Fields {
-		traits[k] = v.AsInterface()
-	}
-	return &User{
-		Id:         userResp.Id,
-		Username:   userResp.Username,
-		Uuid:       userResp.Uuid,
-		Attributes: attributes,
-		Traits:     traits,
-	}, nil
+	return UserResponseToUser(userResp), nil
 }
 
 // GetUser retrieves a user by their ID.
@@ -183,6 +156,130 @@ func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	return UserResponseToUser(userResp), nil
+}
+
+// DeleteUser deletes a user by their ID.
+func (us UserService) DeleteUser(ctx context.Context, id uint64) error {
+	_, err := us.client.Delete(ctx, &userapi.UserRequest{
+		Id: id,
+	})
+	return err
+}
+
+func (us UserService) DeleteAttribute(ctx context.Context, userId uint64, key string) error {
+	_, err := us.client.DeleteAttribute(ctx, &userapi.AttributeRequest{
+		UserId: userId,
+		Key:    key,
+	})
+	return err
+}
+
+func (us UserService) DeleteTrait(ctx context.Context, userId uint64, key string) error {
+	_, err := us.client.DeleteTrait(ctx, &userapi.TraitRequest{
+		UserId: userId,
+		Key:    key,
+	})
+	return err
+}
+
+func (us UserService) SearchUserTraits(ctx context.Context, userId uint64, names []string, begin time.Time, end time.Time) ([]interface{}, error) {
+
+	traitsResp, err := us.client.SearchUserTraits(ctx, &userapi.SearchUserTraitsRequest{
+		UserId: &userapi.UserID{
+			Id: userId,
+		},
+		Names: names,
+		Begin: timestamppb.New(begin),
+		End:   timestamppb.New(end),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	traits := make([]interface{}, 0, len(traitsResp.Traits))
+
+	for _, v := range traitsResp.Traits {
+		traitMap := v.AsMap()
+		traits = append(traits, traitMap)
+	}
+
+	return traits, nil
+}
+
+func (us UserService) GetUsersByTraits(ctx context.Context, names []string, begin time.Time, end time.Time) ([]*User, error) {
+
+	usersResp, err := us.client.GetUsersByTraits(ctx, &userapi.SearchUserTraitsRequest{
+		Names: names,
+		Begin: timestamppb.New(begin),
+		End:   timestamppb.New(end),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*User, 0, len(usersResp.Users))
+
+	for _, u := range usersResp.Users {
+		users = append(users, UserResponseToUser(u))
+	}
+
+	return users, nil
+}
+
+func (us UserService) GetUsersByEvents(ctx context.Context, types []string, sources []string, schemas []string, begin time.Time, end time.Time) ([]*User, error) {
+
+	usersResp, err := us.client.GetUsersByEvents(ctx, &userapi.SearchUserEventsRequest{
+		Types:   types,
+		Sources: sources,
+		Schemas: schemas,
+		Begin:   timestamppb.New(begin),
+		End:     timestamppb.New(end),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*User, 0, len(usersResp.Users))
+
+	for _, u := range usersResp.Users {
+		users = append(users, UserResponseToUser(u))
+	}
+
+	return users, nil
+}
+
+func (us UserService) SearchEvents(ctx context.Context, userId uint64, types []string, begin time.Time, end time.Time) ([]Event, error) {
+	eventsResp, err := us.client.SearchEvents(ctx, &userapi.SearchEventsRequest{
+		UserId: &userapi.UserID{
+			Id: userId,
+		},
+		Names: types,
+		Begin: timestamppb.New(begin),
+		End:   timestamppb.New(end),
+	})
+	if err != nil {
+		return nil, err
+	}
+	events := make([]Event, len(eventsResp.Events))
+	for i, event := range eventsResp.Events {
+		events[i] = Event{
+			Timestamp:       event.Timestamp.AsTime(),
+			ID:              event.Id,
+			Source:          event.Source,
+			SpecVersion:     event.Specversion,
+			Type:            event.Type,
+			DataContentType: event.Datacontenttype,
+			DataSchema:      event.Dataschema,
+			Subject:         event.Subject,
+			Data:            event.Data,
+			UserID:          event.UserId,
+		}
+	}
+	return events, nil
+}
+
+func UserResponseToUser(userResp *userapi.UserResponse) *User {
 	attributes := make(map[string]interface{})
 	for k, v := range userResp.Attributes.Fields {
 		attributes[k] = v.AsInterface()
@@ -197,15 +294,7 @@ func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 		Uuid:       userResp.Uuid,
 		Attributes: attributes,
 		Traits:     traits,
-	}, nil
-}
-
-// DeleteUser deletes a user by their ID.
-func (us UserService) DeleteUser(ctx context.Context, id uint64) error {
-	_, err := us.client.Delete(ctx, &userapi.UserRequest{
-		Id: id,
-	})
-	return err
+	}
 }
 
 // QueryUsers queries the user service with the given query and returns a list of users and an error, if any.
