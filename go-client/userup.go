@@ -39,6 +39,46 @@ type User struct {
 	Traits     map[string]interface{}
 }
 
+type UserSearchParams struct {
+	Id               uint64
+	Username         string
+	Uuid             string
+	AttributeFilters []*userapi.AttributeFilter
+	TraitFilters     []*userapi.TraitFilter
+}
+
+func (usp UserSearchParams) WithAttribute(name string, value interface{}, operator ...userapi.Operator) UserSearchParams {
+	op := userapi.Operator_EQUALS
+	if len(operator) > 0 {
+		op = operator[0]
+	}
+
+	pbValue, _ := structpb.NewValue(value)
+	filter := userapi.AttributeFilter{
+		Name:     name,
+		Value:    pbValue,
+		Operator: op,
+	}
+	usp.AttributeFilters = append(usp.AttributeFilters, &filter)
+	return usp
+}
+
+func (usp UserSearchParams) WithTrait(name string, value interface{}, operator ...userapi.Operator) UserSearchParams {
+	op := userapi.Operator_EQUALS
+	if len(operator) > 0 {
+		op = operator[0]
+	}
+
+	pbValue, _ := structpb.NewValue(value)
+	filter := userapi.TraitFilter{
+		Name:     name,
+		Value:    pbValue,
+		Operator: op,
+	}
+	usp.TraitFilters = append(usp.TraitFilters, &filter)
+	return usp
+}
+
 type Event struct {
 	Timestamp       time.Time
 	ID              string
@@ -157,6 +197,30 @@ func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 		return nil, err
 	}
 	return UserResponseToUser(userResp), nil
+}
+
+func UserSearchToUserQuery(usp *UserSearchParams) *userapi.UserQuery {
+	query := userapi.UserQuery{
+		Id:               usp.Id,
+		Uuid:             usp.Uuid,
+		Username:         usp.Username,
+		AttributeFilters: usp.AttributeFilters,
+		TraitFilters:     usp.TraitFilters,
+	}
+	return &query
+}
+
+func (us UserService) FindUser(ctx context.Context, usp *UserSearchParams) ([]*User, error) {
+	userQuery := UserSearchToUserQuery(usp)
+	usersResp, err := us.client.Find(ctx, userQuery)
+	if err != nil {
+		return nil, err
+	}
+	users := make([]*User, 0, len(usersResp.Users))
+	for _, u := range usersResp.Users {
+		users = append(users, UserResponseToUser(u))
+	}
+	return users, nil
 }
 
 // DeleteUser deletes a user by their ID.
