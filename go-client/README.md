@@ -46,7 +46,7 @@ user, err = client.GetUser(ctx, userId)
 ### Update a User
 
 ```go
-user, err := client.UpdateUser(ctx, user
+user, err := client.UpdateUser(ctx, user)
 ```
 Any attributes or traits specified in the user struct will be added/updated during this operation.
 
