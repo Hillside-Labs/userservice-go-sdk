@@ -452,3 +452,17 @@ func (us UserService) QueryEvents(ctx context.Context, query *Query) ([]Event, e
 	}
 	return events, nil
 }
+
+func (us UserService) AddSession(ctx context.Context, sessionID string, sessionData map[string]interface{}) error {
+	obj, err := structpb.NewStruct(sessionData)
+	if err != nil {
+		return err
+	}
+
+	_, err = us.client.AddSession(ctx, &userapi.SessionRequest{
+		Id:     sessionID,
+		Object: obj,
+	})
+
+	return err
+}
