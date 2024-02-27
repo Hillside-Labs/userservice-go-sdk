@@ -51,7 +51,7 @@ func NewSessionLogger(config SessionEventLoggerConfig) SessionEventLogger {
 // LogEvent logs an event in the user service.
 // It takes the user ID, data type, schema, subject, and data as input parameters.
 // It returns the logged event and an error if any.
-func (e SessionEventLogger) LogEvent(ctx context.Context, sessionID string, dataType string, schema string, subject string, data interface{}) error {
+func (e SessionEventLogger) LogEvent(ctx context.Context, sessionKey string, dataType string, schema string, subject string, data interface{}) error {
 
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
@@ -59,7 +59,7 @@ func (e SessionEventLogger) LogEvent(ctx context.Context, sessionID string, data
 	}
 
 	event := &userapi.SessionEvent{
-		SessionId:       sessionID,
+		SessionKey:      sessionKey,
 		Source:          e.config.Source,
 		Type:            dataType,
 		Data:            dataBytes,

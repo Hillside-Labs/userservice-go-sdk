@@ -42,6 +42,7 @@ const (
 	Users_QueryTraits_FullMethodName                = "/userapi.Users/QueryTraits"
 	Users_QueryEvents_FullMethodName                = "/userapi.Users/QueryEvents"
 	Users_AddSession_FullMethodName                 = "/userapi.Users/AddSession"
+	Users_AddUserToSession_FullMethodName           = "/userapi.Users/AddUserToSession"
 	Users_LogSessionEvent_FullMethodName            = "/userapi.Users/LogSessionEvent"
 )
 
@@ -72,6 +73,7 @@ type UsersClient interface {
 	QueryTraits(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*TraitListResponse, error)
 	QueryEvents(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*SearchEventsResponse, error)
 	AddSession(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SessionResponse, error)
+	AddUserToSession(ctx context.Context, in *AddUserToSessionRequest, opts ...grpc.CallOption) (*AddUserToSessionResponse, error)
 	LogSessionEvent(ctx context.Context, in *SessionEventRequest, opts ...grpc.CallOption) (*SessionEventResponse, error)
 }
 
@@ -290,6 +292,15 @@ func (c *usersClient) AddSession(ctx context.Context, in *SessionRequest, opts .
 	return out, nil
 }
 
+func (c *usersClient) AddUserToSession(ctx context.Context, in *AddUserToSessionRequest, opts ...grpc.CallOption) (*AddUserToSessionResponse, error) {
+	out := new(AddUserToSessionResponse)
+	err := c.cc.Invoke(ctx, Users_AddUserToSession_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) LogSessionEvent(ctx context.Context, in *SessionEventRequest, opts ...grpc.CallOption) (*SessionEventResponse, error) {
 	out := new(SessionEventResponse)
 	err := c.cc.Invoke(ctx, Users_LogSessionEvent_FullMethodName, in, out, opts...)
@@ -326,6 +337,7 @@ type UsersServer interface {
 	QueryTraits(context.Context, *QueryRequest) (*TraitListResponse, error)
 	QueryEvents(context.Context, *QueryRequest) (*SearchEventsResponse, error)
 	AddSession(context.Context, *SessionRequest) (*SessionResponse, error)
+	AddUserToSession(context.Context, *AddUserToSessionRequest) (*AddUserToSessionResponse, error)
 	LogSessionEvent(context.Context, *SessionEventRequest) (*SessionEventResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
@@ -402,6 +414,9 @@ func (UnimplementedUsersServer) QueryEvents(context.Context, *QueryRequest) (*Se
 }
 func (UnimplementedUsersServer) AddSession(context.Context, *SessionRequest) (*SessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddSession not implemented")
+}
+func (UnimplementedUsersServer) AddUserToSession(context.Context, *AddUserToSessionRequest) (*AddUserToSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddUserToSession not implemented")
 }
 func (UnimplementedUsersServer) LogSessionEvent(context.Context, *SessionEventRequest) (*SessionEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LogSessionEvent not implemented")
@@ -833,6 +848,24 @@ func _Users_AddSession_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_AddUserToSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddUserToSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).AddUserToSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Users_AddUserToSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).AddUserToSession(ctx, req.(*AddUserToSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_LogSessionEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SessionEventRequest)
 	if err := dec(in); err != nil {
@@ -949,6 +982,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddSession",
 			Handler:    _Users_AddSession_Handler,
+		},
+		{
+			MethodName: "AddUserToSession",
+			Handler:    _Users_AddUserToSession_Handler,
 		},
 		{
 			MethodName: "LogSessionEvent",

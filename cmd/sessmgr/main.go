@@ -36,4 +36,7 @@ func main() {
 	}
 
 	fmt.Println("Sent a session event")
+
+	client.AddUserToSession(context.Background(), sessID, uint64(123))
+	fmt.Println("Added session", sessID, "to user 123")
 }
