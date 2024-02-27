@@ -98,8 +98,8 @@ users, err := client.QueryUsers(ctx, &query)
 
 ### Filtering with different operators
 
-If no operator is specified, the default operator is `$eq` equality. Other supported operators are 
-* `$gt` greater than 
+If no operator is specified, the default operator is `$eq` equality. Other supported operators are
+* `$gt` greater than
 * `$gte` greater than or equal to
 * `$lt` less than
 * `$lte` less than or equal to
@@ -161,4 +161,47 @@ query := userup.Query{
         },
     },
 }
+```
+
+## Anonymous Sessions and Session Events
+
+When a User is not known, Anonymouse Sessions can be used to track activity and eventually resolve that activity back to a know/new User.
+
+### Add Session
+
+In this example, we assume that an Anonymous ID has been created already. The data argument to the `AddSession` call is meant to be an example. There is no structure prescribed for this data. This example draws inspiration from the [Segment Identify Call](https://segment.com/docs/connections/spec/identify/).
+
+```go
+
+sessionData := map[string]interface{}{
+  "channel": "browser",
+  "context": {
+    "ip": "8.8.8.8",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
+  },
+  "attributes": {
+    "vendor_url": "levis.com",
+    "referrer_params": {
+	  "utm_source": "promo_email",
+	  "utm_medium": "email",
+	  "utm_campaign": "feb24promo",
+	  "utm_content": "greatjeans"
+	}
+  },
+}
+
+ctx := context.Background()
+userup.AddSession(ctx, anonID, sessionData)
+```
+
+
+### Session Events
+
+```go
+// Initialize the logger
+logger := userup.NewSessionLogger(userup.NewLoggerConfig("https://userup.io/sample-client", client))
+
+...
+
+logger.LogEvent(context.Background(), user.Id, "io.userup.user.created", "user", strconv.FormatUint(user.Id, 10), user)
 ```
