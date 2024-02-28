@@ -460,18 +460,64 @@ func (us UserService) AddSession(ctx context.Context, sessionKey string, session
 	}
 
 	_, err = us.client.AddSession(ctx, &userapi.SessionRequest{
-		Key:    sessionKey,
-		Object: obj,
+		Session: &userapi.Session{
+			Key:    sessionKey,
+			Object: obj,
+		},
 	})
 
 	return err
 }
 
-func (us UserService) AddUserToSession(ctx context.Context, sessionKey string, userID uint64) error {
-	_, err := us.client.AddUserToSession(ctx, &userapi.AddUserToSessionRequest{
-		SessionKey: sessionKey,
-		UserId:     &userapi.UserID{Id: userID},
+func (us UserService) IdentifySession(ctx context.Context, sessionKey string, userID uint64) error {
+	_, err := us.client.IdentifySession(ctx, &userapi.IdentifySessionRequest{
+		SessionKey: []string{sessionKey},
+		UserId:     userID,
 	})
 
 	return err
+}
+
+type SessionQuery struct {
+	UserID uint64
+	Keys   []string
+	Begin  time.Time
+	End    time.Time
+}
+
+func (us UserService) GetSessions(ctx context.Context, query *SessionQuery) ([]*userapi.Session, error) {
+	sessionsResp, err := us.client.GetSessions(ctx, &userapi.GetSessionsRequest{
+		UserId:      query.UserID,
+		SessionKeys: query.Keys,
+		Begin:       timestamppb.New(query.Begin),
+		End:         timestamppb.New(query.End),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sessionsResp.Sessions, nil
+}
+
+type SessionEventQuery struct {
+	UserID      uint64
+	SessionKeys []string
+	Begin       time.Time
+	End         time.Time
+}
+
+func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQuery) ([]*userapi.SessionEvent, error) {
+	sessionEventsResp, err := us.client.GetSessionEvents(ctx, &userapi.GetSessionEventsRequest{
+		SessionKeys: query.SessionKeys,
+		UserId:      query.UserID,
+		Begin:       timestamppb.New(query.Begin),
+		End:         timestamppb.New(query.End),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sessionEventsResp.SessionEvents, nil
 }
