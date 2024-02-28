@@ -6,7 +6,6 @@ import (
 	"log"
 
 	userup "github.com/hillside-labs/userservice-go-sdk/go-client"
-	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
 )
 
 func main() {
@@ -42,8 +41,8 @@ func main() {
 	fmt.Println("Added session", sessID, "to user 123")
 
 	sessions, err := client.GetSessions(context.Background(), &userup.SessionQuery{
-		UserId: &userapi.UserID{Id: uint64(123)},
-	},)
+		UserID: uint64(123),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
