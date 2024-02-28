@@ -479,10 +479,13 @@ func (us UserService) IdentifySession(ctx context.Context, sessionKey string, us
 }
 
 type SessionQuery struct {
-	UserID uint64
-	Keys   []string
-	Begin  time.Time
-	End    time.Time
+	UserID  uint64
+	Keys    []string
+	Begin   time.Time
+	End     time.Time
+	Limit   int32
+	Offset  int32
+	OrderBy string
 }
 
 func (us UserService) GetSessions(ctx context.Context, query *SessionQuery) ([]*userapi.Session, error) {
@@ -491,6 +494,9 @@ func (us UserService) GetSessions(ctx context.Context, query *SessionQuery) ([]*
 		SessionKeys: query.Keys,
 		Begin:       timestamppb.New(query.Begin),
 		End:         timestamppb.New(query.End),
+		Limit:       query.Limit,
+		Offset:      query.Offset,
+		OrderBy:     query.OrderBy,
 	})
 
 	if err != nil {
@@ -505,6 +511,9 @@ type SessionEventQuery struct {
 	SessionKeys []string
 	Begin       time.Time
 	End         time.Time
+	Limit       int32
+	Offset      int32
+	OrderBy     string
 }
 
 func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQuery) ([]*userapi.SessionEvent, error) {
@@ -513,6 +522,9 @@ func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQ
 		UserId:      query.UserID,
 		Begin:       timestamppb.New(query.Begin),
 		End:         timestamppb.New(query.End),
+		Limit:       query.Limit,
+		Offset:      query.Offset,
+		OrderBy:     query.OrderBy,
 	})
 
 	if err != nil {
