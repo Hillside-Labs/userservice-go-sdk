@@ -165,7 +165,7 @@ query := userup.Query{
 
 ## Anonymous Sessions and Session Events
 
-When a User is not known, Anonymouse Sessions can be used to track activity and eventually resolve that activity back to a know/new User.
+When a User is not known, Anonymous Sessions can be used to track activity and eventually resolve that activity back to a know/new User.
 
 ### Add Session
 
