@@ -169,6 +169,7 @@ func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error)
 	if err != nil {
 		return nil, err
 	}
+
 	traitStruct, err := structpb.NewStruct(user.Traits)
 	if err != nil {
 		return nil, err
