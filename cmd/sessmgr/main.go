@@ -137,7 +137,69 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "evt",
+				Usage: "Create an event within a session",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name: "type",
+					},
+					&cli.StringFlag{
+						Name: "subject",
+					},
+					&cli.StringFlag{
+						Name: "data",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					client, err := userup.NewClient("localhost:9000")
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer client.Close()
+					sessID := c.Args().First()
+					if sessID == "" {
+						return fmt.Errorf("A Session Key is required to create a session event.")
+					}
 
+					if c.String("type") == "" {
+						return fmt.Errorf("A Type is required. The type is a reverse dns name that describes the type of event.")
+					}
+
+					if c.String("subject") == "" {
+						return fmt.Errorf("A Subject is required. The subject is what names the session event.")
+					}
+
+					if c.String("data") == "" {
+						return fmt.Errorf("Data is required for the event.")
+					}
+
+					loggerConfig := userup.SessionEventLoggerConfig{
+						Source:      "https://userup.io/demo/sessmgr/elarson",
+						SpecVersion: "1.0",
+						UserService: client,
+					}
+					logger := userup.NewSessionLogger(loggerConfig)
+
+					fmt.Println("data: ", c.String("data"))
+					var data map[string]interface{}
+					err = json.Unmarshal([]byte(c.String("data")), &data)
+					if err != nil {
+						return err
+					}
+
+					logger.LogEvent(
+						context.Background(),
+						sessID,
+						c.String("type"),
+						"userup.demo.schema",
+						c.String("subject"),
+						data,
+					)
+
+					return nil
+				},
+			},
 			{
 				Name:  "identify",
 				Usage: "Identify a session as belonging to a specific user.",
@@ -149,7 +211,7 @@ func main() {
 					defer client.Close()
 
 					sessID := c.Args().First()
-					userIDstr := c.Args().Get(2)
+					userIDstr := c.Args().Get(1)
 
 					if sessID == "" || userIDstr == "" {
 						return fmt.Errorf("Missing args: SESSION_ID USER_ID")
