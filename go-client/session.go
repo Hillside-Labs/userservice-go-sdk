@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -58,7 +59,8 @@ func (e SessionEventLogger) LogEvent(ctx context.Context, sessionKey string, dat
 		return err
 	}
 
-	event := &userapi.SessionEvent{
+	event := &userapi.Event{
+		Id:              uuid.New().String(),
 		SessionKey:      sessionKey,
 		Source:          e.config.Source,
 		Type:            dataType,
