@@ -517,7 +517,7 @@ type SessionEventQuery struct {
 	OrderBy     string
 }
 
-func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQuery) ([]*userapi.SessionEvent, error) {
+func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQuery) ([]*userapi.Event, error) {
 	sessionEventsResp, err := us.client.GetSessionEvents(ctx, &userapi.GetSessionEventsRequest{
 		SessionKeys: query.SessionKeys,
 		UserId:      query.UserID,
@@ -532,5 +532,5 @@ func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQ
 		return nil, err
 	}
 
-	return sessionEventsResp.SessionEvents, nil
+	return sessionEventsResp.Events, nil
 }
