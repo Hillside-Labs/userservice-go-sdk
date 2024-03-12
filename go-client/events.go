@@ -82,3 +82,46 @@ func (e EventLogger) LogEvent(ctx context.Context, userId uint64, dataType strin
 		UserID:          eventResp.Event.UserId,
 	}, nil
 }
+
+// LogSessionEvent logs an event in the user service using a session rather than a user ID.
+// It takes the Session Key, data type, schema, subject, and data as input parameters.
+// It returns the logged event and an error if any.
+func (e EventLogger) LogSessionEvent(ctx context.Context, sessionKey string, dataType string, schema string, subject string, data interface{}) (*Event, error) {
+
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	event := &userapi.Event{
+		SessionKey:      sessionKey,
+		Source:          e.config.Source,
+		Type:            dataType,
+		Data:            dataBytes,
+		Specversion:     e.config.SpecVersion,
+		Timestamp:       timestamppb.Now(),
+		Datacontenttype: "application/json",
+		Subject:         subject,
+		Dataschema:      schema,
+	}
+	eventResp, err := e.config.UserService.client.LogEvent(ctx, &userapi.EventRequest{
+		Event: event,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return &Event{
+		Timestamp:       eventResp.Event.Timestamp.AsTime(),
+		ID:              eventResp.Event.Id,
+		Source:          eventResp.Event.Source,
+		SpecVersion:     eventResp.Event.Specversion,
+		Type:            eventResp.Event.Type,
+		DataContentType: eventResp.Event.Datacontenttype,
+		DataSchema:      eventResp.Event.Dataschema,
+		Subject:         eventResp.Event.Subject,
+		Data:            eventResp.Event.Data,
+		SessionKey:      eventResp.Event.SessionKey,
+		UserID:          eventResp.Event.UserId,
+	}, nil
+}

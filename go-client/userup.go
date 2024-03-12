@@ -90,6 +90,7 @@ type Event struct {
 	Subject         string
 	Data            []byte
 	UserID          uint64
+	SessionKey      string
 }
 
 type UserService struct {
