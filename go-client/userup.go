@@ -34,7 +34,7 @@ func NewClient(uri string) (*UserService, error) {
 type User struct {
 	Id         uint64
 	Username   string
-	Uuid       string
+	ExternalId string
 	Attributes map[string]interface{}
 	Traits     map[string]interface{}
 }
@@ -42,7 +42,7 @@ type User struct {
 type UserSearchParams struct {
 	Id               uint64
 	Username         string
-	Uuid             string
+	ExternalId       string
 	AttributeFilters []*userapi.AttributeFilter
 	TraitFilters     []*userapi.TraitFilter
 }
@@ -117,7 +117,7 @@ func (us UserService) AddUser(ctx context.Context, user *User) (*User, error) {
 	}
 	userResp, err := us.client.Create(ctx, &userapi.NewUser{
 		Username:   user.Username,
-		Uuid:       user.Uuid,
+		ExternalId: user.ExternalId,
 		Attributes: attrStruct,
 		Traits:     traitStruct,
 	})
@@ -177,7 +177,7 @@ func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error)
 	userResp, err := us.client.Update(ctx, &userapi.UserRequest{
 		Id:         user.Id,
 		Username:   user.Username,
-		Uuid:       user.Uuid,
+		ExternalId: user.ExternalId,
 		Attributes: attrStruct,
 		Traits:     traitStruct,
 	})
@@ -203,7 +203,7 @@ func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 func UserSearchToUserQuery(usp *UserSearchParams) *userapi.UserQuery {
 	query := userapi.UserQuery{
 		Id:               usp.Id,
-		Uuid:             usp.Uuid,
+		ExternalId:       usp.ExternalId,
 		Username:         usp.Username,
 		AttributeFilters: usp.AttributeFilters,
 		TraitFilters:     usp.TraitFilters,
@@ -251,12 +251,10 @@ func (us UserService) DeleteTrait(ctx context.Context, userId uint64, key string
 func (us UserService) SearchUserTraits(ctx context.Context, userId uint64, names []string, begin time.Time, end time.Time) ([]interface{}, error) {
 
 	traitsResp, err := us.client.SearchUserTraits(ctx, &userapi.SearchUserTraitsRequest{
-		UserId: &userapi.UserID{
-			Id: userId,
-		},
-		Names: names,
-		Begin: timestamppb.New(begin),
-		End:   timestamppb.New(end),
+		UserId: userId,
+		Names:  names,
+		Begin:  timestamppb.New(begin),
+		End:    timestamppb.New(end),
 	})
 	if err != nil {
 		return nil, err
@@ -316,12 +314,10 @@ func (us UserService) GetUsersByEvents(ctx context.Context, types []string, sour
 
 func (us UserService) SearchEvents(ctx context.Context, userId uint64, types []string, begin time.Time, end time.Time) ([]Event, error) {
 	eventsResp, err := us.client.SearchEvents(ctx, &userapi.SearchEventsRequest{
-		UserId: &userapi.UserID{
-			Id: userId,
-		},
-		Names: types,
-		Begin: timestamppb.New(begin),
-		End:   timestamppb.New(end),
+		UserId: userId,
+		Names:  types,
+		Begin:  timestamppb.New(begin),
+		End:    timestamppb.New(end),
 	})
 	if err != nil {
 		return nil, err
@@ -356,7 +352,7 @@ func UserResponseToUser(userResp *userapi.UserResponse) *User {
 	return &User{
 		Id:         userResp.Id,
 		Username:   userResp.Username,
-		Uuid:       userResp.Uuid,
+		ExternalId: userResp.ExternalId,
 		Attributes: attributes,
 		Traits:     traits,
 	}
@@ -387,7 +383,7 @@ func (us UserService) QueryUsers(ctx context.Context, query *Query) ([]*User, er
 		users[i] = &User{
 			Id:         user.Id,
 			Username:   user.Username,
-			Uuid:       user.Uuid,
+			ExternalId: user.ExternalId,
 			Attributes: attributes,
 			Traits:     traits,
 		}
