@@ -54,10 +54,7 @@ func main() {
 						log.Fatal(err)
 					}
 
-					fmt.Println("session created: ", sessID)
-					out, _ := json.MarshalIndent(doc, "", "  ")
-					fmt.Println(string(out))
-
+					fmt.Println(sessID)
 					return nil
 				},
 			},
