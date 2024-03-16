@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/google/uuid"
 	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
 )
 
@@ -31,18 +32,34 @@ func NewClient(uri string) (*UserService, error) {
 	}, nil
 }
 
+type UserID struct {
+	ID         uint64
+	UUID       uuid.UUID
+	ExternalID string
+}
+
+func UID(id uint64) UserID {
+	return UserID{ID: id}
+}
+
+func UUID(uuid uuid.UUID) UserID {
+	return UserID{UUID: uuid}
+}
+
+func ExtID(id string) UserID {
+	return UserID{ExternalID: id}
+}
+
 type User struct {
-	Id         uint64
+	ID         UserID
 	Username   string
-	Uuid       string
 	Attributes map[string]interface{}
 	Traits     map[string]interface{}
 }
 
 type UserSearchParams struct {
-	Id               uint64
+	ID               UserID
 	Username         string
-	Uuid             string
 	AttributeFilters []*userapi.AttributeFilter
 	TraitFilters     []*userapi.TraitFilter
 }
@@ -89,7 +106,7 @@ type Event struct {
 	DataSchema      string
 	Subject         string
 	Data            []byte
-	UserID          uint64
+	UserID          UserID
 	SessionKey      string
 }
 
@@ -117,8 +134,9 @@ func (us UserService) AddUser(ctx context.Context, user *User) (*User, error) {
 		return nil, err
 	}
 	userResp, err := us.client.Create(ctx, &userapi.NewUser{
+		ExternalId: user.ID.ExternalID,
+		Uuid:       user.ID.UUID.String(),
 		Username:   user.Username,
-		Uuid:       user.Uuid,
 		Attributes: attrStruct,
 		Traits:     traitStruct,
 	})
@@ -128,17 +146,33 @@ func (us UserService) AddUser(ctx context.Context, user *User) (*User, error) {
 	return UserResponseToUser(userResp), nil
 }
 
+func rpcUserID(id UserID) *userapi.UserID {
+	return &userapi.UserID{
+		Id:         id.ID,
+		Uuid:       id.UUID.String(),
+		ExternalId: id.ExternalID,
+	}
+}
+
+func clientUserID(id *userapi.UserID) UserID {
+	return UserID{
+		ID:         id.Id,
+		UUID:       uuid.MustParse(id.Uuid),
+		ExternalID: id.ExternalId,
+	}
+}
+
 // AddAttribute adds an attribute to a user with the specified ID.
 // It takes a context, user ID, attribute key, and attribute value as parameters.
 // The attribute value can be of any type and will be converted to a structpb.Value.
 // Returns an error if there was a problem adding the attribute.
-func (us UserService) AddAttribute(ctx context.Context, id uint64, key string, value interface{}) error {
+func (us UserService) AddAttribute(ctx context.Context, id UserID, key string, value interface{}) error {
 	attrVal, err := structpb.NewValue(value)
 	if err != nil {
 		return err
 	}
 	_, err = us.client.AddAttribute(ctx, &userapi.AttributeRequest{
-		UserId: id,
+		UserId: rpcUserID(id),
 		Key:    key,
 		Value:  attrVal,
 	})
@@ -149,13 +183,13 @@ func (us UserService) AddAttribute(ctx context.Context, id uint64, key string, v
 // It takes a context, user ID, trait key, and trait value as parameters.
 // The trait value can be of any type and will be converted to a structpb.Value.
 // Returns an error if there was a problem adding the trait.
-func (us UserService) AddTrait(ctx context.Context, id uint64, key string, value interface{}) error {
+func (us UserService) AddTrait(ctx context.Context, id UserID, key string, value interface{}) error {
 	traitVal, err := structpb.NewValue(value)
 	if err != nil {
 		return err
 	}
 	_, err = us.client.AddTrait(ctx, &userapi.TraitRequest{
-		UserId: id,
+		UserId: rpcUserID(id),
 		Key:    key,
 		Value:  traitVal,
 	})
@@ -176,9 +210,8 @@ func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error)
 		return nil, err
 	}
 	userResp, err := us.client.Update(ctx, &userapi.UserRequest{
-		Id:         user.Id,
+		Id:         rpcUserID(user.ID),
 		Username:   user.Username,
-		Uuid:       user.Uuid,
 		Attributes: attrStruct,
 		Traits:     traitStruct,
 	})
@@ -191,9 +224,9 @@ func (us UserService) UpdateUser(ctx context.Context, user *User) (*User, error)
 // GetUser retrieves a user by their ID.
 // It makes a request to the user service API to fetch the user details.
 // Returns the user object if found, otherwise returns an error.
-func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
+func (us UserService) GetUser(ctx context.Context, id UserID) (*User, error) {
 	userResp, err := us.client.Get(ctx, &userapi.UserRequest{
-		Id: id,
+		Id: rpcUserID(id),
 	})
 	if err != nil {
 		return nil, err
@@ -203,8 +236,7 @@ func (us UserService) GetUser(ctx context.Context, id uint64) (*User, error) {
 
 func UserSearchToUserQuery(usp *UserSearchParams) *userapi.UserQuery {
 	query := userapi.UserQuery{
-		Id:               usp.Id,
-		Uuid:             usp.Uuid,
+		UserId:           rpcUserID(usp.ID),
 		Username:         usp.Username,
 		AttributeFilters: usp.AttributeFilters,
 		TraitFilters:     usp.TraitFilters,
@@ -226,38 +258,36 @@ func (us UserService) FindUser(ctx context.Context, usp *UserSearchParams) ([]*U
 }
 
 // DeleteUser deletes a user by their ID.
-func (us UserService) DeleteUser(ctx context.Context, id uint64) error {
+func (us UserService) DeleteUser(ctx context.Context, id UserID) error {
 	_, err := us.client.Delete(ctx, &userapi.UserRequest{
-		Id: id,
+		Id: rpcUserID(id),
 	})
 	return err
 }
 
-func (us UserService) DeleteAttribute(ctx context.Context, userId uint64, key string) error {
+func (us UserService) DeleteAttribute(ctx context.Context, userId UserID, key string) error {
 	_, err := us.client.DeleteAttribute(ctx, &userapi.AttributeRequest{
-		UserId: userId,
+		UserId: rpcUserID(userId),
 		Key:    key,
 	})
 	return err
 }
 
-func (us UserService) DeleteTrait(ctx context.Context, userId uint64, key string) error {
+func (us UserService) DeleteTrait(ctx context.Context, userId UserID, key string) error {
 	_, err := us.client.DeleteTrait(ctx, &userapi.TraitRequest{
-		UserId: userId,
+		UserId: rpcUserID(userId),
 		Key:    key,
 	})
 	return err
 }
 
-func (us UserService) SearchUserTraits(ctx context.Context, userId uint64, names []string, begin time.Time, end time.Time) ([]interface{}, error) {
+func (us UserService) SearchUserTraits(ctx context.Context, userId UserID, names []string, begin time.Time, end time.Time) ([]interface{}, error) {
 
 	traitsResp, err := us.client.SearchUserTraits(ctx, &userapi.SearchUserTraitsRequest{
-		UserId: &userapi.UserID{
-			Id: userId,
-		},
-		Names: names,
-		Begin: timestamppb.New(begin),
-		End:   timestamppb.New(end),
+		UserId: rpcUserID(userId),
+		Names:  names,
+		Begin:  timestamppb.New(begin),
+		End:    timestamppb.New(end),
 	})
 	if err != nil {
 		return nil, err
@@ -315,14 +345,12 @@ func (us UserService) GetUsersByEvents(ctx context.Context, types []string, sour
 	return users, nil
 }
 
-func (us UserService) SearchEvents(ctx context.Context, userId uint64, types []string, begin time.Time, end time.Time) ([]Event, error) {
+func (us UserService) SearchEvents(ctx context.Context, userId UserID, types []string, begin time.Time, end time.Time) ([]Event, error) {
 	eventsResp, err := us.client.SearchEvents(ctx, &userapi.SearchEventsRequest{
-		UserId: &userapi.UserID{
-			Id: userId,
-		},
-		Names: types,
-		Begin: timestamppb.New(begin),
-		End:   timestamppb.New(end),
+		UserId: rpcUserID(userId),
+		Names:  types,
+		Begin:  timestamppb.New(begin),
+		End:    timestamppb.New(end),
 	})
 	if err != nil {
 		return nil, err
@@ -339,7 +367,7 @@ func (us UserService) SearchEvents(ctx context.Context, userId uint64, types []s
 			DataSchema:      event.Dataschema,
 			Subject:         event.Subject,
 			Data:            event.Data,
-			UserID:          event.UserId,
+			UserID:          clientUserID(event.UserId),
 		}
 	}
 	return events, nil
@@ -355,9 +383,8 @@ func UserResponseToUser(userResp *userapi.UserResponse) *User {
 		traits[k] = v.AsInterface()
 	}
 	return &User{
-		Id:         userResp.Id,
+		ID:         clientUserID(userResp.Id),
 		Username:   userResp.Username,
-		Uuid:       userResp.Uuid,
 		Attributes: attributes,
 		Traits:     traits,
 	}
@@ -386,9 +413,8 @@ func (us UserService) QueryUsers(ctx context.Context, query *Query) ([]*User, er
 			traits[k] = v.AsInterface()
 		}
 		users[i] = &User{
-			Id:         user.Id,
+			ID:         clientUserID(user.Id),
 			Username:   user.Username,
-			Uuid:       user.Uuid,
 			Attributes: attributes,
 			Traits:     traits,
 		}
@@ -449,7 +475,7 @@ func (us UserService) QueryEvents(ctx context.Context, query *Query) ([]Event, e
 			DataSchema:      event.Dataschema,
 			Subject:         event.Subject,
 			Data:            event.Data,
-			UserID:          event.UserId,
+			UserID:          clientUserID(event.UserId),
 		}
 	}
 	return events, nil
@@ -471,17 +497,17 @@ func (us UserService) AddSession(ctx context.Context, sessionKey string, session
 	return err
 }
 
-func (us UserService) IdentifySession(ctx context.Context, sessionKey string, userID uint64) error {
+func (us UserService) IdentifySession(ctx context.Context, sessionKey string, userID UserID) error {
 	_, err := us.client.IdentifySession(ctx, &userapi.IdentifySessionRequest{
 		SessionKey: []string{sessionKey},
-		UserId:     userID,
+		UserId:     rpcUserID(userID),
 	})
 
 	return err
 }
 
 type SessionQuery struct {
-	UserID  uint64
+	UserID  UserID
 	Keys    []string
 	Begin   time.Time
 	End     time.Time
@@ -492,7 +518,7 @@ type SessionQuery struct {
 
 func (us UserService) GetSessions(ctx context.Context, query *SessionQuery) ([]*userapi.Session, error) {
 	sessionsResp, err := us.client.GetSessions(ctx, &userapi.GetSessionsRequest{
-		UserId:      query.UserID,
+		UserId:      rpcUserID(query.UserID),
 		SessionKeys: query.Keys,
 		Begin:       timestamppb.New(query.Begin),
 		End:         timestamppb.New(query.End),
@@ -509,7 +535,7 @@ func (us UserService) GetSessions(ctx context.Context, query *SessionQuery) ([]*
 }
 
 type SessionEventQuery struct {
-	UserID      uint64
+	UserID      UserID
 	SessionKeys []string
 	Begin       time.Time
 	End         time.Time
@@ -521,7 +547,7 @@ type SessionEventQuery struct {
 func (us UserService) GetSessionEvents(ctx context.Context, query *SessionEventQuery) ([]*userapi.Event, error) {
 	sessionEventsResp, err := us.client.GetSessionEvents(ctx, &userapi.GetSessionEventsRequest{
 		SessionKeys: query.SessionKeys,
-		UserId:      query.UserID,
+		UserId:      rpcUserID(query.UserID),
 		Begin:       timestamppb.New(query.Begin),
 		End:         timestamppb.New(query.End),
 		Limit:       query.Limit,

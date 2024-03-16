@@ -34,16 +34,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger.LogEvent(context.Background(), user.Id, "io.userup.user.created", "user", strconv.FormatUint(user.Id, 10), user)
+	logger.LogEvent(context.Background(), user.ID, "io.userup.user.created", "user", strconv.FormatUint(user.ID.ID, 10), user)
 
-	fmt.Println("User ID:", userRet.Id)
-	user, err = client.GetUser(ctx, userRet.Id)
+	fmt.Println("User ID:", userRet.ID)
+	user, err = client.GetUser(ctx, userRet.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("+%v\n", user)
 
-	client.AddAttribute(ctx, userRet.Id, "alias", "dumbledore")
+	client.AddAttribute(ctx, userRet.ID, "alias", "dumbledore")
 	query := userup.Query{
 		Joins: []userup.Join{
 			{

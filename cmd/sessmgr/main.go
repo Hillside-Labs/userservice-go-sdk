@@ -219,7 +219,7 @@ func main() {
 						return err
 					}
 
-					return client.IdentifySession(context.Background(), sessID, userID)
+					return client.IdentifySession(context.Background(), sessID, userup.UID(userID))
 				},
 			},
 		},

@@ -15,12 +15,12 @@ import (
 type EventLoggerConfig struct {
 	Source      string       // Source represents the source of the events.
 	SpecVersion string       // SpecVersion represents the version of the event specification.
-	UserService *UserService  // UserService represents the user service client.
+	UserService *UserService // UserService represents the user service client.
 }
 
 // EventLogger represents a logger for logging events in the user service.
 type EventLogger struct {
-	config EventLoggerConfig  // config represents the configuration for the EventLogger.
+	config EventLoggerConfig // config represents the configuration for the EventLogger.
 }
 
 // NewLoggerConfig creates a new EventLoggerConfig with the specified source and UserService.
@@ -44,7 +44,7 @@ func NewLogger(config EventLoggerConfig) EventLogger {
 // LogEvent logs an event in the user service.
 // It takes the user ID, data type, schema, subject, and data as input parameters.
 // It returns the logged event and an error if any.
-func (e EventLogger) LogEvent(ctx context.Context, userId uint64, dataType string, schema string, subject string, data interface{}) (*Event, error) {
+func (e EventLogger) LogEvent(ctx context.Context, userId UserID, dataType string, schema string, subject string, data interface{}) (*Event, error) {
 
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
@@ -52,7 +52,7 @@ func (e EventLogger) LogEvent(ctx context.Context, userId uint64, dataType strin
 	}
 
 	event := &userapi.Event{
-		UserId:          userId,
+		UserId:          rpcUserID(userId),
 		Source:          e.config.Source,
 		Type:            dataType,
 		Data:            dataBytes,
@@ -79,7 +79,7 @@ func (e EventLogger) LogEvent(ctx context.Context, userId uint64, dataType strin
 		DataSchema:      eventResp.Event.Dataschema,
 		Subject:         eventResp.Event.Subject,
 		Data:            eventResp.Event.Data,
-		UserID:          eventResp.Event.UserId,
+		UserID:          clientUserID(eventResp.Event.UserId),
 	}, nil
 }
 
