@@ -1,5 +1,10 @@
-userservice-go-sdk:
+SRC=$(find . -name '*.go')
+
+userservice-go-sdk: $(SRC)
 	go build ./go-client
+
+sessmgr: $(SRC)
+	go build ./cmd/sessmgr/
 
 sample-client:
 	go build ./cmd/sample-client

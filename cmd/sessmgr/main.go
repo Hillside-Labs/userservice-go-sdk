@@ -54,10 +54,7 @@ func main() {
 						log.Fatal(err)
 					}
 
-					fmt.Println("session created: ", sessID)
-					out, _ := json.MarshalIndent(doc, "", "  ")
-					fmt.Println(string(out))
-
+					fmt.Println(sessID)
 					return nil
 				},
 			},
@@ -174,12 +171,12 @@ func main() {
 						return fmt.Errorf("Data is required for the event.")
 					}
 
-					loggerConfig := userup.SessionEventLoggerConfig{
+					loggerConfig := userup.EventLoggerConfig{
 						Source:      "https://userup.io/demo/sessmgr/elarson",
 						SpecVersion: "1.0",
 						UserService: client,
 					}
-					logger := userup.NewSessionLogger(loggerConfig)
+					logger := userup.NewLogger(loggerConfig)
 
 					fmt.Println("data: ", c.String("data"))
 					var data map[string]interface{}
@@ -188,7 +185,7 @@ func main() {
 						return err
 					}
 
-					logger.LogEvent(
+					logger.LogSessionEvent(
 						context.Background(),
 						sessID,
 						c.String("type"),
