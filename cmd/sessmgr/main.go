@@ -185,13 +185,15 @@ func main() {
 						return err
 					}
 
-					logger.LogSessionEvent(
+					logger.LogEvent(
 						context.Background(),
-						sessID,
-						c.String("type"),
-						"userup.demo.schema",
-						c.String("subject"),
-						data,
+						userup.Event{
+							Type:    c.String("type"),
+							Subject: c.String("subject"),
+							Data:    data,
+							DataSchema: "userup.demo.schema",
+							SessionKey: sessID,
+						},
 					)
 
 					return nil

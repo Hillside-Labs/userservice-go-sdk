@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
 	userup "github.com/hillside-labs/userservice-go-sdk/go-client"
 )
@@ -34,7 +33,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger.LogEvent(context.Background(), user.ID, "io.userup.user.created", "user", strconv.FormatUint(user.ID.ID, 10), user)
+	logger.LogEvent(context.Background(),
+		userup.Event{
+			Type:    "io.userup.user.created",
+			Subject: "user",
+			Data:    user,
+		},
+	)
 
 	fmt.Println("User ID:", userRet.ID)
 	user, err = client.GetUser(ctx, userRet.ID)
