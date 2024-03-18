@@ -46,7 +46,7 @@ func NewLogger(config EventLoggerConfig) EventLogger {
 // LogEvent logs an event in the user service.
 // It takes the user ID, data type, schema, subject, and data as input parameters.
 // It returns the logged event and an error if any.
-func (e EventLogger) LogEvent(ctx context.Context, event Event /*userId UserID, dataType string, schema string, subject string, data interface{}*/) (*Event, error) {
+func (e EventLogger) LogEvent(ctx context.Context, event Event) (*Event, error) {
 
 	// check for required fields
 
