@@ -4,6 +4,8 @@ package userup
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -44,70 +46,54 @@ func NewLogger(config EventLoggerConfig) EventLogger {
 // LogEvent logs an event in the user service.
 // It takes the user ID, data type, schema, subject, and data as input parameters.
 // It returns the logged event and an error if any.
-func (e EventLogger) LogEvent(ctx context.Context, userId UserID, dataType string, schema string, subject string, data interface{}) (*Event, error) {
+func (e EventLogger) LogEvent(ctx context.Context, event Event) (*Event, error) {
 
-	dataBytes, err := json.Marshal(data)
+	// check for required fields
+
+	if event.Source == "" {
+		event.Source = e.config.Source
+	}
+
+	if event.Type == "" {
+		return nil, fmt.Errorf("`Type` is required for the event")
+	}
+
+	if event.ID == "" {
+		event.ID = uuid.New().String()
+	}
+
+	if event.DataContentType == "" {
+		event.DataContentType = "application/json"
+	}
+
+	if event.SpecVersion == "" {
+		event.SpecVersion = e.config.SpecVersion
+	}
+
+	if event.Timestamp.IsZero() {
+		event.Timestamp = time.Now()
+	}
+
+	jsonData, err := json.Marshal(event.Data)
 	if err != nil {
 		return nil, err
 	}
 
-	event := &userapi.Event{
-		UserId:          rpcUserID(userId),
-		Source:          e.config.Source,
-		Type:            dataType,
-		Data:            dataBytes,
-		Specversion:     e.config.SpecVersion,
-		Timestamp:       timestamppb.Now(),
-		Id:              uuid.New().String(),
-		Datacontenttype: "application/json",
-		Subject:         subject,
-		Dataschema:      schema,
+	apiEvent := &userapi.Event{
+		UserId:          rpcUserID(event.UserID),
+		Source:          event.Source,
+		Type:            event.Type,
+		Data:            jsonData,
+		Specversion:     event.SpecVersion,
+		Timestamp:       timestamppb.New(event.Timestamp),
+		Id:              event.ID,
+		Datacontenttype: event.DataContentType,
+		Subject:         event.Subject,
+		Dataschema:      event.DataSchema,
 	}
 	eventResp, err := e.config.UserService.client.LogEvent(ctx, &userapi.EventRequest{
-		Event: event,
+		Event: apiEvent,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return &Event{
-		Timestamp:       eventResp.Event.Timestamp.AsTime(),
-		ID:              eventResp.Event.Id,
-		Source:          eventResp.Event.Source,
-		SpecVersion:     eventResp.Event.Specversion,
-		Type:            eventResp.Event.Type,
-		DataContentType: eventResp.Event.Datacontenttype,
-		DataSchema:      eventResp.Event.Dataschema,
-		Subject:         eventResp.Event.Subject,
-		Data:            eventResp.Event.Data,
-		UserID:          clientUserID(eventResp.Event.UserId),
-	}, nil
-}
-
-// LogSessionEvent logs an event in the user service using a session rather than a user ID.
-// It takes the Session Key, data type, schema, subject, and data as input parameters.
-// It returns the logged event and an error if any.
-func (e EventLogger) LogSessionEvent(ctx context.Context, sessionKey string, dataType string, schema string, subject string, data interface{}) (*Event, error) {
-
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
-
-	event := &userapi.Event{
-		SessionKey:      sessionKey,
-		Source:          e.config.Source,
-		Type:            dataType,
-		Data:            dataBytes,
-		Specversion:     e.config.SpecVersion,
-		Timestamp:       timestamppb.Now(),
-		Datacontenttype: "application/json",
-		Subject:         subject,
-		Dataschema:      schema,
-	}
-	eventResp, err := e.config.UserService.client.LogEvent(ctx, &userapi.EventRequest{
-		Event: event,
-	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -122,6 +108,6 @@ func (e EventLogger) LogSessionEvent(ctx context.Context, sessionKey string, dat
 		Subject:         eventResp.Event.Subject,
 		Data:            eventResp.Event.Data,
 		SessionKey:      eventResp.Event.SessionKey,
-		UserID:          eventResp.Event.UserId,
+		UserID:          clientUserID(eventResp.Event.UserId),
 	}, nil
 }

@@ -105,7 +105,7 @@ type Event struct {
 	DataContentType string
 	DataSchema      string
 	Subject         string
-	Data            []byte
+	Data            interface{}
 	UserID          UserID
 	SessionKey      string
 }
