@@ -1069,3 +1069,241 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "user.proto",
 }
+
+const (
+	Integrations_ListIntegrations_FullMethodName  = "/userapi.Integrations/ListIntegrations"
+	Integrations_AddIntegration_FullMethodName    = "/userapi.Integrations/AddIntegration"
+	Integrations_RemoveIntegration_FullMethodName = "/userapi.Integrations/RemoveIntegration"
+	Integrations_JobUpdate_FullMethodName         = "/userapi.Integrations/JobUpdate"
+	Integrations_GetJobHistory_FullMethodName     = "/userapi.Integrations/GetJobHistory"
+)
+
+// IntegrationsClient is the client API for Integrations service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type IntegrationsClient interface {
+	ListIntegrations(ctx context.Context, in *IntegrationListRequest, opts ...grpc.CallOption) (*IntegrationListResponse, error)
+	AddIntegration(ctx context.Context, in *IntegrationAddRequest, opts ...grpc.CallOption) (*IntegrationAddResponse, error)
+	RemoveIntegration(ctx context.Context, in *IntegrationRemoveRequest, opts ...grpc.CallOption) (*IntegrationRemoveResponse, error)
+	JobUpdate(ctx context.Context, in *JobUpdateRequest, opts ...grpc.CallOption) (*JobUpdateResponse, error)
+	GetJobHistory(ctx context.Context, in *JobGetHistoryRequest, opts ...grpc.CallOption) (*JobGetHistoryResponse, error)
+}
+
+type integrationsClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewIntegrationsClient(cc grpc.ClientConnInterface) IntegrationsClient {
+	return &integrationsClient{cc}
+}
+
+func (c *integrationsClient) ListIntegrations(ctx context.Context, in *IntegrationListRequest, opts ...grpc.CallOption) (*IntegrationListResponse, error) {
+	out := new(IntegrationListResponse)
+	err := c.cc.Invoke(ctx, Integrations_ListIntegrations_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *integrationsClient) AddIntegration(ctx context.Context, in *IntegrationAddRequest, opts ...grpc.CallOption) (*IntegrationAddResponse, error) {
+	out := new(IntegrationAddResponse)
+	err := c.cc.Invoke(ctx, Integrations_AddIntegration_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *integrationsClient) RemoveIntegration(ctx context.Context, in *IntegrationRemoveRequest, opts ...grpc.CallOption) (*IntegrationRemoveResponse, error) {
+	out := new(IntegrationRemoveResponse)
+	err := c.cc.Invoke(ctx, Integrations_RemoveIntegration_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *integrationsClient) JobUpdate(ctx context.Context, in *JobUpdateRequest, opts ...grpc.CallOption) (*JobUpdateResponse, error) {
+	out := new(JobUpdateResponse)
+	err := c.cc.Invoke(ctx, Integrations_JobUpdate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *integrationsClient) GetJobHistory(ctx context.Context, in *JobGetHistoryRequest, opts ...grpc.CallOption) (*JobGetHistoryResponse, error) {
+	out := new(JobGetHistoryResponse)
+	err := c.cc.Invoke(ctx, Integrations_GetJobHistory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// IntegrationsServer is the server API for Integrations service.
+// All implementations must embed UnimplementedIntegrationsServer
+// for forward compatibility
+type IntegrationsServer interface {
+	ListIntegrations(context.Context, *IntegrationListRequest) (*IntegrationListResponse, error)
+	AddIntegration(context.Context, *IntegrationAddRequest) (*IntegrationAddResponse, error)
+	RemoveIntegration(context.Context, *IntegrationRemoveRequest) (*IntegrationRemoveResponse, error)
+	JobUpdate(context.Context, *JobUpdateRequest) (*JobUpdateResponse, error)
+	GetJobHistory(context.Context, *JobGetHistoryRequest) (*JobGetHistoryResponse, error)
+	mustEmbedUnimplementedIntegrationsServer()
+}
+
+// UnimplementedIntegrationsServer must be embedded to have forward compatible implementations.
+type UnimplementedIntegrationsServer struct {
+}
+
+func (UnimplementedIntegrationsServer) ListIntegrations(context.Context, *IntegrationListRequest) (*IntegrationListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListIntegrations not implemented")
+}
+func (UnimplementedIntegrationsServer) AddIntegration(context.Context, *IntegrationAddRequest) (*IntegrationAddResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddIntegration not implemented")
+}
+func (UnimplementedIntegrationsServer) RemoveIntegration(context.Context, *IntegrationRemoveRequest) (*IntegrationRemoveResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveIntegration not implemented")
+}
+func (UnimplementedIntegrationsServer) JobUpdate(context.Context, *JobUpdateRequest) (*JobUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JobUpdate not implemented")
+}
+func (UnimplementedIntegrationsServer) GetJobHistory(context.Context, *JobGetHistoryRequest) (*JobGetHistoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJobHistory not implemented")
+}
+func (UnimplementedIntegrationsServer) mustEmbedUnimplementedIntegrationsServer() {}
+
+// UnsafeIntegrationsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IntegrationsServer will
+// result in compilation errors.
+type UnsafeIntegrationsServer interface {
+	mustEmbedUnimplementedIntegrationsServer()
+}
+
+func RegisterIntegrationsServer(s grpc.ServiceRegistrar, srv IntegrationsServer) {
+	s.RegisterService(&Integrations_ServiceDesc, srv)
+}
+
+func _Integrations_ListIntegrations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IntegrationListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntegrationsServer).ListIntegrations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Integrations_ListIntegrations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntegrationsServer).ListIntegrations(ctx, req.(*IntegrationListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Integrations_AddIntegration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IntegrationAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntegrationsServer).AddIntegration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Integrations_AddIntegration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntegrationsServer).AddIntegration(ctx, req.(*IntegrationAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Integrations_RemoveIntegration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IntegrationRemoveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntegrationsServer).RemoveIntegration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Integrations_RemoveIntegration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntegrationsServer).RemoveIntegration(ctx, req.(*IntegrationRemoveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Integrations_JobUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JobUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntegrationsServer).JobUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Integrations_JobUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntegrationsServer).JobUpdate(ctx, req.(*JobUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Integrations_GetJobHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JobGetHistoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntegrationsServer).GetJobHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Integrations_GetJobHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntegrationsServer).GetJobHistory(ctx, req.(*JobGetHistoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Integrations_ServiceDesc is the grpc.ServiceDesc for Integrations service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Integrations_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "userapi.Integrations",
+	HandlerType: (*IntegrationsServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListIntegrations",
+			Handler:    _Integrations_ListIntegrations_Handler,
+		},
+		{
+			MethodName: "AddIntegration",
+			Handler:    _Integrations_AddIntegration_Handler,
+		},
+		{
+			MethodName: "RemoveIntegration",
+			Handler:    _Integrations_RemoveIntegration_Handler,
+		},
+		{
+			MethodName: "JobUpdate",
+			Handler:    _Integrations_JobUpdate_Handler,
+		},
+		{
+			MethodName: "GetJobHistory",
+			Handler:    _Integrations_GetJobHistory_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "user.proto",
+}
