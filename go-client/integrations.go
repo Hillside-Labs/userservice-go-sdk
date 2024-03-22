@@ -6,6 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/hillside-labs/userservice-go-sdk/pkg/userapi"
@@ -18,9 +19,11 @@ type Integration struct {
 	ExecPath   string
 	ConfigPath string
 	Enabled    bool
+	Settings   map[string]interface{}
 }
 
 func (i *Integration) toProto() *userapi.Integration {
+	settings, _ := structpb.NewStruct(i.Settings)
 	return &userapi.Integration{
 		ID:         int32(i.ID),
 		Name:       i.Name,
@@ -28,6 +31,7 @@ func (i *Integration) toProto() *userapi.Integration {
 		ExecPath:   i.ExecPath,
 		ConfigPath: i.ConfigPath,
 		Enabled:    i.Enabled,
+		Settings:   settings,
 	}
 }
 
@@ -39,6 +43,7 @@ func integrationFromProto(i *userapi.Integration) *Integration {
 		ExecPath:   i.ExecPath,
 		ConfigPath: i.ConfigPath,
 		Enabled:    i.Enabled,
+		Settings:   i.Settings.AsMap(),
 	}
 }
 
@@ -107,6 +112,17 @@ func (is *IntegrationsService) AddIntegration(ctx context.Context, integration *
 		Integration: integration.toProto(),
 	}
 	resp, err := is.client.AddIntegration(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return integrationFromProto(resp.Integration), nil
+}
+
+func (is *IntegrationsService) UpdateIntegration(ctx context.Context, integration *Integration) (*Integration, error) {
+	req := &userapi.IntegrationUpdateRequest{
+		Integration: integration.toProto(),
+	}
+	resp, err := is.client.UpdateIntegration(ctx, req)
 	if err != nil {
 		return nil, err
 	}
