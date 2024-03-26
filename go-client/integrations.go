@@ -118,6 +118,17 @@ func (is *IntegrationsService) AddIntegration(ctx context.Context, integration *
 	return integrationFromProto(resp.Integration), nil
 }
 
+func (is *IntegrationsService) GetIntegration(ctx context.Context, name string) (*Integration, error) {
+	req := &userapi.IntegrationGetRequest{
+		Name: name,
+	}
+	resp, err := is.client.GetIntegration(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return integrationFromProto(resp.Integration), nil
+}
+
 func (is *IntegrationsService) UpdateIntegration(ctx context.Context, integration *Integration) (*Integration, error) {
 	req := &userapi.IntegrationUpdateRequest{
 		Integration: integration.toProto(),
