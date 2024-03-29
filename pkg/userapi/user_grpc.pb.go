@@ -1072,6 +1072,7 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	Integrations_ListIntegrations_FullMethodName  = "/userapi.Integrations/ListIntegrations"
+	Integrations_GetIntegration_FullMethodName    = "/userapi.Integrations/GetIntegration"
 	Integrations_AddIntegration_FullMethodName    = "/userapi.Integrations/AddIntegration"
 	Integrations_UpdateIntegration_FullMethodName = "/userapi.Integrations/UpdateIntegration"
 	Integrations_RemoveIntegration_FullMethodName = "/userapi.Integrations/RemoveIntegration"
@@ -1084,6 +1085,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IntegrationsClient interface {
 	ListIntegrations(ctx context.Context, in *IntegrationListRequest, opts ...grpc.CallOption) (*IntegrationListResponse, error)
+	GetIntegration(ctx context.Context, in *IntegrationGetRequest, opts ...grpc.CallOption) (*IntegrationGetResponse, error)
 	AddIntegration(ctx context.Context, in *IntegrationAddRequest, opts ...grpc.CallOption) (*IntegrationAddResponse, error)
 	UpdateIntegration(ctx context.Context, in *IntegrationUpdateRequest, opts ...grpc.CallOption) (*IntegrationUpdateResponse, error)
 	RemoveIntegration(ctx context.Context, in *IntegrationRemoveRequest, opts ...grpc.CallOption) (*IntegrationRemoveResponse, error)
@@ -1102,6 +1104,15 @@ func NewIntegrationsClient(cc grpc.ClientConnInterface) IntegrationsClient {
 func (c *integrationsClient) ListIntegrations(ctx context.Context, in *IntegrationListRequest, opts ...grpc.CallOption) (*IntegrationListResponse, error) {
 	out := new(IntegrationListResponse)
 	err := c.cc.Invoke(ctx, Integrations_ListIntegrations_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *integrationsClient) GetIntegration(ctx context.Context, in *IntegrationGetRequest, opts ...grpc.CallOption) (*IntegrationGetResponse, error) {
+	out := new(IntegrationGetResponse)
+	err := c.cc.Invoke(ctx, Integrations_GetIntegration_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1158,6 +1169,7 @@ func (c *integrationsClient) GetJobHistory(ctx context.Context, in *JobGetHistor
 // for forward compatibility
 type IntegrationsServer interface {
 	ListIntegrations(context.Context, *IntegrationListRequest) (*IntegrationListResponse, error)
+	GetIntegration(context.Context, *IntegrationGetRequest) (*IntegrationGetResponse, error)
 	AddIntegration(context.Context, *IntegrationAddRequest) (*IntegrationAddResponse, error)
 	UpdateIntegration(context.Context, *IntegrationUpdateRequest) (*IntegrationUpdateResponse, error)
 	RemoveIntegration(context.Context, *IntegrationRemoveRequest) (*IntegrationRemoveResponse, error)
@@ -1172,6 +1184,9 @@ type UnimplementedIntegrationsServer struct {
 
 func (UnimplementedIntegrationsServer) ListIntegrations(context.Context, *IntegrationListRequest) (*IntegrationListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListIntegrations not implemented")
+}
+func (UnimplementedIntegrationsServer) GetIntegration(context.Context, *IntegrationGetRequest) (*IntegrationGetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIntegration not implemented")
 }
 func (UnimplementedIntegrationsServer) AddIntegration(context.Context, *IntegrationAddRequest) (*IntegrationAddResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddIntegration not implemented")
@@ -1215,6 +1230,24 @@ func _Integrations_ListIntegrations_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IntegrationsServer).ListIntegrations(ctx, req.(*IntegrationListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Integrations_GetIntegration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IntegrationGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IntegrationsServer).GetIntegration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Integrations_GetIntegration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IntegrationsServer).GetIntegration(ctx, req.(*IntegrationGetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1319,6 +1352,10 @@ var Integrations_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListIntegrations",
 			Handler:    _Integrations_ListIntegrations_Handler,
+		},
+		{
+			MethodName: "GetIntegration",
+			Handler:    _Integrations_GetIntegration_Handler,
 		},
 		{
 			MethodName: "AddIntegration",
